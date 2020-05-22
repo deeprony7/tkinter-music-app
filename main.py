@@ -2,6 +2,7 @@ from tkinter import *
 import tkinter.messagebox
 from tkinter import filedialog
 from pygame import mixer
+from mutagen.mp3 import MP3
 import os
 
 root = Tk()
@@ -45,21 +46,28 @@ root.title('Melody')
 filelabel = Label(root, text="Let's make some noise!")
 filelabel.pack(pady=10)
 
-lengthlabel = Label(root, text="Duration: --:--")
-lengthlabel.pack(pady=10)
+lengthlabel = Label(root, text='Duration : --:--')
+lengthlabel.pack()
+
 
 def show_details():
-    filelabel['text'] = "Playing - " + os.path.basename(filename)
+    filelabel['text'] = "Playing " + os.path.basename(filename)
 
-    a = mixer.Sound(filename)
-    duration = a.get_length()
+    file_data = os.path.splitext(filename)
 
-    # divmod - (div - duration/60, mod - duration % 60)
-    mins,secs = divmod(duration, 60)
+    if file_data[-1] == '.mp3':
+        audio = MP3(filename)
+        duration = audio.info.length
+    else:
+        a = mixer.Sound(filename)
+        duration = a.get_length()
+
+    # div - duration/60, mod - duration % 60
+    mins, secs = divmod(duration, 60)
     mins = round(mins)
     secs = round(secs)
-    timeformat = '{:02d}:{:02d}'.format(mins,secs)
-    lengthlabel['text'] = "Duration - " + timeformat
+    timeformat = '{:02d}:{:02d}'.format(mins, secs)
+    lengthlabel['text'] = "Duration : " + timeformat
     
 
 
