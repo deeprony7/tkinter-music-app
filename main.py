@@ -1,9 +1,12 @@
-from tkinter import *
-import tkinter.messagebox
-from tkinter import filedialog
-from pygame import mixer
-from mutagen.mp3 import MP3
 import os
+import threading
+import time
+import tkinter.messagebox
+from tkinter import *
+from tkinter import filedialog
+
+from mutagen.mp3 import MP3
+from pygame import mixer
 
 root = Tk()
 
@@ -49,6 +52,8 @@ filelabel.pack(pady=10)
 lengthlabel = Label(root, text='Duration : --:--')
 lengthlabel.pack()
 
+currenttimelabel = Label(root, text='Current Time : --:--', relief=GROOVE)
+currenttimelabel.pack()
 
 def show_details():
     filelabel['text'] = "Playing " + os.path.basename(filename)
@@ -68,8 +73,26 @@ def show_details():
     secs = round(secs)
     timeformat = '{:02d}:{:02d}'.format(mins, secs)
     lengthlabel['text'] = "Duration : " + timeformat
-    
 
+    t1 = threading.Thread(target=start_count, args=(duration,))
+    t1.start()
+    
+def start_count(t):
+    global paused
+    # mixer.music.get_busy(): - Returns FALSE when we press the stop button (music stop playing)
+    # Continue - Ignores all of the statements below it. We check if music is paused or not.
+    x = 0
+    while x <= t and mixer.music.get_busy():
+        if paused:
+            continue
+        else:
+            mins, secs = divmod(x, 60)
+            mins = round(mins)
+            secs = round(secs)
+            timeformat = '{:02d}:{:02d}'.format(mins, secs)
+            currenttimelabel['text'] = "Current Time" + ' - ' + timeformat
+            time.sleep(1)
+            x += 1
 
 def play_music():
     global paused
