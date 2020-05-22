@@ -10,14 +10,15 @@ from pygame import mixer
 
 root = Tk()
 
+statusbar = Label(root, text="Welcome to Melody", relief=SUNKEN, anchor=W)
+statusbar.pack(side=BOTTOM, fill=X)
+
 # Create menubar
 menubar = Menu(root)
 root.config(menu=menubar)
 
 # Create a submenu
-
 submenu = Menu(menubar, tearoff=0)
-
 
 def browse_file():
     global filename
@@ -46,17 +47,37 @@ mixer.init()  # initializing the mixer
 root.title('Melody')
 # root.iconbitmap(r'images/melody.ico')
 
-filelabel = Label(root, text="Let's make some noise!")
-filelabel.pack(pady=10)
+# filelabel = Label(root, text="Let's make some noise!")
+# filelabel.pack(pady=10)
 
-lengthlabel = Label(root, text='Duration : --:--')
+leftframe = Frame(root)
+leftframe.pack(side=LEFT,padx=30)
+
+lb1 = Listbox(leftframe)
+lb1.insert(0,'Song1')
+lb1.insert(1,'Song2')
+lb1.pack()
+
+btn1 = Button(leftframe, text="+ Add")
+btn1.pack(side=LEFT)
+
+btn2 = Button(leftframe,text='- Del')
+btn2.pack(side=LEFT)
+
+rightframe = Frame(root)
+rightframe.pack()
+
+topframe = Frame(rightframe)
+topframe.pack()
+
+lengthlabel = Label(topframe, text='Duration : --:--')
 lengthlabel.pack()
 
-currenttimelabel = Label(root, text='Current Time : --:--', relief=GROOVE)
+currenttimelabel = Label(topframe, text='Current Time : --:--', relief=GROOVE)
 currenttimelabel.pack()
 
 def show_details():
-    filelabel['text'] = "Playing " + os.path.basename(filename)
+    # filelabel['text'] = "Playing " + os.path.basename(filename)
 
     file_data = os.path.splitext(filename)
 
@@ -81,18 +102,18 @@ def start_count(t):
     global paused
     # mixer.music.get_busy(): - Returns FALSE when we press the stop button (music stop playing)
     # Continue - Ignores all of the statements below it. We check if music is paused or not.
-    x = 0
-    while x <= t and mixer.music.get_busy():
+    current_time = 0
+    while current_time <= t and mixer.music.get_busy():
         if paused:
             continue
         else:
-            mins, secs = divmod(x, 60)
+            mins, secs = divmod(current_time, 60)
             mins = round(mins)
             secs = round(secs)
             timeformat = '{:02d}:{:02d}'.format(mins, secs)
             currenttimelabel['text'] = "Current Time" + ' - ' + timeformat
             time.sleep(1)
-            x += 1
+            current_time += 1
 
 def play_music():
     global paused
@@ -151,7 +172,7 @@ def mute_music():
         scale.set(0)
         muted = TRUE
 
-middleframe= Frame(root)
+middleframe= Frame(rightframe)
 middleframe.pack(padx=30,pady=30)
 
 play_photo = PhotoImage(file="images/arrows.png")
@@ -169,7 +190,7 @@ stop_btn.grid(row=0,column=2,padx=10)
 
 # Bottomframe for volume, rewind, mute, etc
 
-bottomframe = Frame(root)
+bottomframe = Frame(rightframe)
 bottomframe.pack()
 
 
@@ -187,9 +208,11 @@ scale.set(50)   # default scale value (only sets the slider)
 mixer.music.set_volume(0.5) # actually sets the volume
 scale.grid(row=0,column=2,padx=30,pady=15)
 
-statusbar = Label(root, text="Welcome to Melody", relief=SUNKEN, anchor=W)
-statusbar.pack(side=BOTTOM, fill=X)
+def on_closing():
+    stop_music()
+    root.destroy()
+    
 
-
+root.protocol("WM_DELETE_WINDOW", on_closing)
 root.mainloop()
 
