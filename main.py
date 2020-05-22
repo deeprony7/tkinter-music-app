@@ -23,7 +23,14 @@ submenu = Menu(menubar, tearoff=0)
 def browse_file():
     global filename
     filename = filedialog.askopenfilename()
+    add_to_playlist(filename)
 
+def add_to_playlist(f):
+    f = os.path.basename(f)
+    index = 0
+    playlistbox.insert(index, f)
+    index += 1
+    
 
 menubar.add_cascade(label="File", menu=submenu)
 submenu.add_command(label="Open", command=browse_file)
@@ -50,19 +57,21 @@ root.title('Melody')
 # filelabel = Label(root, text="Let's make some noise!")
 # filelabel.pack(pady=10)
 
+# Root Window - StatusBar, LeftFrame, RightFrame
+# LeftFrame - The listbox (playlist)
+# RightFrame - TopFrame,MiddleFrame and the BottomFrame
+
 leftframe = Frame(root)
 leftframe.pack(side=LEFT,padx=30)
 
-lb1 = Listbox(leftframe)
-lb1.insert(0,'Song1')
-lb1.insert(1,'Song2')
-lb1.pack()
+playlistbox = Listbox(leftframe)
+playlistbox.pack()
 
-btn1 = Button(leftframe, text="+ Add")
-btn1.pack(side=LEFT)
+addbtn = Button(leftframe, text="+ Add",command=browse_file)
+addbtn.pack(side=LEFT)
 
-btn2 = Button(leftframe,text='- Del')
-btn2.pack(side=LEFT)
+delbtn = Button(leftframe,text='- Del')
+delbtn.pack(side=LEFT)
 
 rightframe = Frame(root)
 rightframe.pack()
