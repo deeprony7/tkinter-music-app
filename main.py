@@ -42,8 +42,25 @@ mixer.init()  # initializing the mixer
 root.title('Melody')
 # root.iconbitmap(r'images/melody.ico')
 
-text = Label(root, text="Let's make some noise!")
-text.pack(pady=15)
+filelabel = Label(root, text="Let's make some noise!")
+filelabel.pack(pady=10)
+
+lengthlabel = Label(root, text="Duration: --:--")
+lengthlabel.pack(pady=10)
+
+def show_details():
+    filelabel['text'] = "Playing - " + os.path.basename(filename)
+
+    a = mixer.Sound(filename)
+    duration = a.get_length()
+
+    # divmod - (div - duration/60, mod - duration % 60)
+    mins,secs = divmod(duration, 60)
+    mins = round(mins)
+    secs = round(secs)
+    timeformat = '{:02d}:{:02d}'.format(mins,secs)
+    lengthlabel['text'] = "Duration - " + timeformat
+    
 
 
 def play_music():
@@ -58,6 +75,7 @@ def play_music():
             mixer.music.load(filename)
             mixer.music.play()
             statusbar['text'] = "Playing - " + os.path.basename(filename)
+            show_details()
         except:
             tkinter.messagebox.showerror(
                 'Error', 'File not found. Please check again.')
