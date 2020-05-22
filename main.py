@@ -37,13 +37,13 @@ submenu.add_command(label="About Us", command=about_us)
 
 mixer.init()  # initializing the mixer
 
-root.geometry('300x300')
+# root.geometry('300x300')
 
 root.title('Melody')
 # root.iconbitmap(r'melody.ico')
 
 text = Label(root, text="Let's make some noise!")
-text.pack()
+text.pack(pady=15)
 
 
 def play_music():
@@ -77,22 +77,26 @@ def set_vol(val):
     mixer.music.set_volume(volume)
 
 
+middleframe= Frame(root)
+middleframe.pack(padx=20,pady=10)
+
 play_photo = PhotoImage(file="arrows.png")
-play_btn = Button(root, image=play_photo, command=play_music)
-play_btn.pack()
+play_btn = Button(middleframe, image=play_photo, command=play_music)
+play_btn.pack(side=LEFT,padx=5)
 
 
 pause_photo = PhotoImage(file="pause.png")
-pause_btn = Button(root, image=pause_photo, command=pause_music)
-pause_btn.pack()
+pause_btn = Button(middleframe, image=pause_photo, command=pause_music)
+pause_btn.pack(side=LEFT,padx=5)
 
 stop_photo = PhotoImage(file="stop.png")
-stop_btn = Button(root, image=stop_photo, command=stop_music)
-stop_btn.pack()
+stop_btn = Button(middleframe, image=stop_photo, command=stop_music)
+stop_btn.pack(side=LEFT,padx=5)
 
 scale = Scale(root, from_=0, to=100, orient=HORIZONTAL, command=set_vol)
 scale.set(50)
 mixer.music.set_volume(0.5)
+scale.pack(pady=15)
 
 scale.pack()
 
