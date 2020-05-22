@@ -10,7 +10,7 @@ from pygame import mixer
 
 root = Tk()
 
-statusbar = Label(root, text="Welcome to Melody", relief=SUNKEN, anchor=W)
+statusbar = Label(root, text="Welcome to Melody", relief=SUNKEN, anchor=W, font='Times 10 italic')
 statusbar.pack(side=BOTTOM, fill=X)
 
 # Create menubar
@@ -20,15 +20,22 @@ root.config(menu=menubar)
 # Create a submenu
 submenu = Menu(menubar, tearoff=0)
 
-def browse_file():
-    global filename
-    filename = filedialog.askopenfilename()
-    add_to_playlist(filename)
+playlist = []
 
-def add_to_playlist(f):
-    f = os.path.basename(f)
+# playlist - contains the full path + filename
+# playlistbox - contains just the filename
+# Fullpath + filename is required to play the music inside play_music load function
+
+def browse_file():
+    global file_path
+    file_path = filedialog.askopenfilename()
+    add_to_playlist(file_path)
+
+def add_to_playlist(filename):
+    filename = os.path.basename(filename)
     index = 0
-    playlistbox.insert(index, f)
+    playlistbox.insert(index, filename)
+    playlist.insert(index,file_path)
     index += 1
     
 
@@ -70,7 +77,13 @@ playlistbox.pack()
 addbtn = Button(leftframe, text="+ Add",command=browse_file)
 addbtn.pack(side=LEFT)
 
-delbtn = Button(leftframe,text='- Del')
+def del_song():
+    selected_song = playlistbox.curselection()
+    selected_song = int(selected_song[0])
+    playlistbox.delete(selected_song)
+    playlist.pop(selected_song)
+
+delbtn = Button(leftframe,text='- Del',command=del_song)
 delbtn.pack(side=LEFT)
 
 rightframe = Frame(root)
@@ -85,16 +98,16 @@ lengthlabel.pack()
 currenttimelabel = Label(topframe, text='Current Time : --:--', relief=GROOVE)
 currenttimelabel.pack()
 
-def show_details():
-    # filelabel['text'] = "Playing " + os.path.basename(filename)
+def show_details(play_song):
+    # filelabel['text'] = "Playing " + os.path.basename(file_path)
 
-    file_data = os.path.splitext(filename)
+    file_data = os.path.splitext(play_song)
 
     if file_data[-1] == '.mp3':
-        audio = MP3(filename)
+        audio = MP3(play_song)
         duration = audio.info.length
     else:
-        a = mixer.Sound(filename)
+        a = mixer.Sound(play_song)
         duration = a.get_length()
 
     # div - duration/60, mod - duration % 60
@@ -133,10 +146,15 @@ def play_music():
         paused = FALSE
     else:
         try:
-            mixer.music.load(filename)
+            stop_music()
+            time.sleep(1)
+            selected_song= playlistbox.curselection()
+            selected_song = int(selected_song[0])
+            play_it = playlist[selected_song]
+            mixer.music.load(play_it)
             mixer.music.play()
-            statusbar['text'] = "Playing - " + os.path.basename(filename)
-            show_details()
+            statusbar['text'] = "Playing - " + os.path.basename(play_it)
+            show_details(play_it)
         except:
             tkinter.messagebox.showerror(
                 'Error', 'File not found. Please check again.')
