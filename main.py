@@ -188,20 +188,17 @@ def rewind_music():
 
 muted = FALSE
 
+
 def mute_music():
     global muted
-    global last_volume
-
-    if muted:
-        mixer.music.set_volume(last_volume*0.01)
+    if muted:  # Unmute the music
+        mixer.music.set_volume(0.5)
         volume_btn.configure(image=volume_photo)
-        scale.set(last_volume)
-        muted= FALSE
-    else:
+        scale.set(50)
+        muted = FALSE
+    else:  # mute the music
         mixer.music.set_volume(0)
         volume_btn.configure(image=mute_photo)
-        last_volume = scale.get()
-        print(last_volume)
         scale.set(0)
         muted = TRUE
 
