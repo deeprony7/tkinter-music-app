@@ -27,7 +27,7 @@ submenu.add_command(label="Exit", command=root.destroy)
 
 def about_us():
     tkinter.messagebox.showinfo(
-        'About Melody', 'This is a music player build by Shouvick')
+        'About Melody', 'This is a music player built by Shouvick')
 
 
 submenu = Menu(menubar, tearoff=0)
@@ -40,16 +40,20 @@ mixer.init()  # initializing the mixer
 # root.geometry('300x300')
 
 root.title('Melody')
-# root.iconbitmap(r'melody.ico')
+# root.iconbitmap(r'images/melody.ico')
 
 text = Label(root, text="Let's make some noise!")
 text.pack(pady=15)
 
 
 def play_music():
-    try:
-        paused  # Checks whether the 'paused' variable is initialized 
-    except NameError:   # If not, then exectutes the except block
+    global paused
+    
+    if paused:
+        mixer.music.unpause()
+        statusbar['text'] = "Music resumed"
+        paused = FALSE
+    else:
         try:
             mixer.music.load(filename)
             mixer.music.play()
@@ -57,9 +61,8 @@ def play_music():
         except:
             tkinter.messagebox.showerror(
                 'Error', 'File not found. Please check again.')
-    else:   # If initialized, it executes the 'else' block
-        mixer.music.unpause()
-        statusbar['text'] = "Music resumed"
+
+paused = FALSE
 
 def pause_music():
     global paused
@@ -74,31 +77,66 @@ def stop_music():
 
 def set_vol(val):
     volume = int(val)/100
-    mixer.music.set_volume(volume)
+    mixer.music.set_volume(volume)  # set_volume takes only values between 0 and 1
 
+def rewind_music():
+    play_music()
+    statusbar['text'] = "Music Rewinded"
+
+muted = FALSE
+
+def mute_music():
+    global muted
+    global last_volume
+
+    if muted:
+        mixer.music.set_volume(last_volume*0.01)
+        volume_btn.configure(image=volume_photo)
+        scale.set(last_volume)
+        muted= FALSE
+    else:
+        mixer.music.set_volume(0)
+        volume_btn.configure(image=mute_photo)
+        last_volume = scale.get()
+        print(last_volume)
+        scale.set(0)
+        muted = TRUE
 
 middleframe= Frame(root)
-middleframe.pack(padx=20,pady=10)
+middleframe.pack(padx=30,pady=30)
 
-play_photo = PhotoImage(file="arrows.png")
+play_photo = PhotoImage(file="images/arrows.png")
 play_btn = Button(middleframe, image=play_photo, command=play_music)
-play_btn.pack(side=LEFT,padx=5)
+play_btn.grid(row=0,column=0,padx=10)
 
 
-pause_photo = PhotoImage(file="pause.png")
+pause_photo = PhotoImage(file="images/pause.png")
 pause_btn = Button(middleframe, image=pause_photo, command=pause_music)
-pause_btn.pack(side=LEFT,padx=5)
+pause_btn.grid(row=0,column=1,padx=10)
 
-stop_photo = PhotoImage(file="stop.png")
+stop_photo = PhotoImage(file="images/stop.png")
 stop_btn = Button(middleframe, image=stop_photo, command=stop_music)
-stop_btn.pack(side=LEFT,padx=5)
+stop_btn.grid(row=0,column=2,padx=10)
 
-scale = Scale(root, from_=0, to=100, orient=HORIZONTAL, command=set_vol)
-scale.set(50)
-mixer.music.set_volume(0.5)
-scale.pack(pady=15)
+# Bottomframe for volume, rewind, mute, etc
 
-scale.pack()
+bottomframe = Frame(root)
+bottomframe.pack()
+
+
+rewind_photo = PhotoImage(file="images/rewind.png")
+rewind_btn = Button(bottomframe, image=rewind_photo, command=rewind_music)
+rewind_btn.grid(row=0,column=0)
+
+mute_photo = PhotoImage(file="images/mute.png")
+volume_photo = PhotoImage(file="images/volume.png")
+volume_btn = Button(bottomframe, image=volume_photo, command=mute_music)
+volume_btn.grid(row=0,column=1)
+
+scale = Scale(bottomframe, from_=0, to=100, orient=HORIZONTAL, command=set_vol)
+scale.set(50)   # default scale value (only sets the slider)
+mixer.music.set_volume(0.5) # actually sets the volume
+scale.grid(row=0,column=2,padx=30,pady=15)
 
 statusbar = Label(root, text="Welcome to Melody", relief=SUNKEN, anchor=W)
 statusbar.pack(side=BOTTOM, fill=X)
